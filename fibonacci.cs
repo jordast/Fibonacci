@@ -1,82 +1,80 @@
+using System.IO;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Fibunacci
+using System.Diagnostics;
+ 
+class Program
 {
-    public partial class Fibunacci : Form
+    static void Main()
     {
-        public Fibunacci()
+        Console.WriteLine("Running tests");
+        try
         {
-            InitializeComponent();
+            Test(1, 1);
+            Test(2, 1);
+            Test(3, 2);
+            Test(10, 55);
+            Test(44, 701408733);  
+            Test(47, 2971215073); 
+            Test(0, 0); 
         }
-
-
-        // --- btnCalculate_Click ---
-        //
-        // Hier wird die Ermittlung der Fibunacci Werte bis zu einer bestimmten 
-        // Position in der Folge gestartet.
-        // Die gesuchte Position wird über die Oberfläche eingegeben.
-        // Die Ausgabe der ermittelten Werte erfolgt in einer Listbox
-        //
-        private void btnCalculate_Click(object sender, EventArgs e)
+        catch (Exception e)
         {
-            Int32 position = 0;
-            
-            lbxResult.Items.Clear();
-
-            try
-            {
-                position = Convert.ToInt32(txtPosition.Text);
-            }
-            catch (FormatException ex)
-            {
-                MessageBox.Show("Fehlerhafte Eingabe für die Anzahl der Ergebnisse");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            
-            try
-            {
-                for (int i = 1; i <= position; i++)
-                {
-                    lbxResult.Items.Add(fibunacci(i));
-                }    
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-                  
+            Console.WriteLine("Catastrophic error while executing tests " + e);
         }
-        
-        // --- fibunacci ---
-        //
-        // Hier wird anhand der Übergebenen Position die entsprechende Zahl der 
-        // Fibunacci-Folge ermittelt und zurück gegeben.
-        // Die Ermittlung erfolgt durch den Rekursiven aufruf wie diser in der
-        // Funktion der Fibunacci Folge festgelegt ist:
-        //
-        // f(n) = f(n-1) + f(n-2) 
-        //
-        // Das heißt der Gesuchte Wert ist die Summe der beiden vorherigen Werte.
-        //
-        // Da bei diesem Rekursiven Aufruf sämmtliche Vorgängerwerte ermittelt werden
-        // müssen dauert die Ermittlung des Wertes um ein vielfaches länger, je höher
-        // die gesuchte Stelle ist.
-        //
-        private Int32 fibunacci(Int32 value)
+ 
+ 
+        Console.WriteLine("Completed.");
+ 
+    }
+ 
+    private static void Test(int input, long expected)
+    {
+        var actual = fibunacci(input);
+        if (actual != expected)
         {
-            if (value == 1 || value == 2) return 1;
-            else return fibunacci(value - 1) + fibunacci(value - 2);
+            Console.WriteLine(string.Format("Test failed. Got {0} but expected {1}", input, expected));
+            Environment.Exit(-1);
+        }
+        else
+        {
+            Console.WriteLine(string.Format("Test passed for {0} (={1})", input, expected));
+ 
+        }
+    }
+ 
+    /// --- fibunacci (1 parameter)
+    /// <summary>
+    /// Starts recursion and initialize the memeory array that stores such values
+    /// that has been already found by recursion
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    private static Int64 fibunacci(Int64 value)
+    {
+        if (value <= 1) return value;
+ 
+        Int64[] memory = new Int64[value + 1];
+        return fibunacci(value, memory);
+    }
+ 
+    /// --- fibunacci (2 parameters)
+    /// <summary>
+    /// Returns value of the fibunacci sequence at given position
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="memory"></param>
+    /// <returns></returns>
+    private static Int64 fibunacci(Int64 value, Int64[] memory)
+    {
+        if (value == 1 || value == 2)
+        {
+            return 1;
+        }
+        else
+        {
+            if (memory[value] > 0) return memory[value];
+            memory[value] = fibunacci(value - 1, memory) + fibunacci(value - 2, memory);
+            return memory[value];
         }
     }
 }
